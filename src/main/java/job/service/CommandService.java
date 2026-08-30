@@ -75,7 +75,7 @@ public class CommandService {
                     int minMatches = Integer.parseInt(command.options().get("match"));
 
                     userService.getUsers().stream()
-                            .filter(user -> matchService.getMatch(user.getName()).size() >= minMatches)
+                            .filter(user -> matchService.getMatch(user.getName(), false).size() >= minMatches)
                             .sorted(Comparator.comparing(User::getName))
                             .forEach(System.out::println);
                 } else if (command.options().containsKey("top-skills")) {

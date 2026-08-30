@@ -7,6 +7,7 @@ import job.domain.Vacancy;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class MatchService {
     private final StorageService storageService;
@@ -15,18 +16,23 @@ public class MatchService {
         this.storageService = storageService;
     }
 
-    public List<Vacancy> getMatch(String nameUser) {
-        User user = storageService.getUser(nameUser);
-        List<Vacancy> vacancies = storageService.getVacancies();
+    public List<Vacancy> getMatch(String userName) {
+        return getMatch(userName, true);
+    }
 
-        List<Match> matches = new ArrayList<>();
-        for (Vacancy vacancy : vacancies) {
-            double score = user.matchScore(vacancy);
-            matches.add(new Match(vacancy, score));
+    public List<Vacancy> getMatch(String userName, boolean needLimit) {
+        User user = storageService.getUser(userName);
+
+        Stream<Match> matches = storageService.getVacancies().stream()
+                .map(vacancy -> new Match(vacancy, user.matchScore(vacancy)))
+                .filter(match -> match.score() > 0)
+                .sorted(Comparator.comparingDouble(Match::score).reversed());
+
+        if (needLimit) {
+            matches = matches.limit(2);
         }
-        return matches.stream()
-                .sorted(Comparator.comparingDouble(Match::score).reversed())
-                .limit(2)
+
+        return matches
                 .map(Match::vacancy)
                 .toList();
     }
