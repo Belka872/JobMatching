@@ -1,0 +1,4 @@
+user alice --skills=java,ml,linux --exp=2
+user-list
+job Backend_Dev --company=VK --tags=java,backend,linux --exp=1
+history
