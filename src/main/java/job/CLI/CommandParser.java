@@ -1,4 +1,6 @@
-package job.service;
+package job.CLI;
+
+import job.domain.ParsedCommand;
 
 import java.util.*;
 

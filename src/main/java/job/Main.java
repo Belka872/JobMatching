@@ -1,49 +1,37 @@
 package job;
 
+import job.repository.InMemoryJobRepository;
+import job.repository.InMemoryUserRepository;
+import job.repository.JobRepository;
+import job.repository.UserRepository;
 import job.service.*;
-import job.domain.User;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class Main {
-    static void main() {
-        StorageService storageService = new StorageService();
-        MatchService matchService = new MatchService(storageService);
-        FileService fileService = new FileService("history.txt");
-        UserService userService = new UserService(storageService);
-        VacancyService vacancyService = new VacancyService(storageService);
-        CommandService commandService = new CommandService(matchService, fileService, userService, vacancyService);
+
+@Component
+@RequiredArgsConstructor
+public class Main implements CommandLineRunner {
+    private final CommandService commandService;
+
+    @Override
+    public void run(String... args) throws Exception {
         commandService.processCommand();
-
-        FindBestJob findBestJob = new FindBestJob(userService, matchService);
         Scanner scanner = new Scanner(System.in);
+        while (scanner.hasNextLine()) {
+            String input = scanner.nextLine();
 
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(findBestJob, 0, 5, TimeUnit.SECONDS);
+            if ("exit".equals(input)) {
+                break;
+            }
 
-        try {
-            while (true) {
-                String input = scanner.nextLine();
-                if (input.equals("exit")) {
-                    break;
-                }
-                commandService.handle(input);
-            }
-        } finally {
-            executor.shutdown();
-            try {
-                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                    executor.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                executor.shutdownNow();
-                Thread.currentThread().interrupt();
-            }
+            commandService.handle(input);
         }
     }
-
 }

@@ -1,8 +1,12 @@
 package job.domain;
 
+import lombok.Getter;
+
 import java.util.List;
 
+@Getter
 public class User {
+
     private final String name;
     private final List<String> skills;
     private final int experience;
@@ -19,10 +23,6 @@ public class User {
         return name + " " + String.join(",", skills) + " " + experience;
     }
 
-    public String getName() {
-        return name;
-    }
-    public List<String> getSkills() {return skills;}
     public double matchScore(Vacancy vacancy) {
         double score = vacancy.countScore(skills);
         if (experience < vacancy.getNeedExperience()) score /= 2;

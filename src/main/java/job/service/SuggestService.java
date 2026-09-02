@@ -3,17 +3,21 @@ package job.service;
 import job.domain.Match;
 import job.domain.User;
 import job.domain.Vacancy;
+import job.repository.JobRepository;
+import job.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
+@Service
+public class SuggestService {
+    private final UserRepository userRepository;
+    private final JobRepository jobRepository;
 
-public class MatchService {
-    private final StorageService storageService;
-
-    public MatchService(StorageService storageService) {
-        this.storageService = storageService;
+    public SuggestService(UserRepository userRepository, JobRepository jobRepository) {
+        this.userRepository = userRepository;
+        this.jobRepository = jobRepository;
     }
 
     public List<Vacancy> getMatch(String userName) {
@@ -21,9 +25,9 @@ public class MatchService {
     }
 
     public List<Vacancy> getMatch(String userName, boolean needLimit) {
-        User user = storageService.getUser(userName);
+        User user = userRepository.getUser(userName);
 
-        Stream<Match> matches = storageService.getVacancies().stream()
+        Stream<Match> matches = jobRepository.getAllVacancies().stream()
                 .map(vacancy -> new Match(vacancy, user.matchScore(vacancy)))
                 .filter(match -> match.score() > 0)
                 .sorted(Comparator.comparingDouble(Match::score).reversed());

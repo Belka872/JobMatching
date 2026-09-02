@@ -1,7 +1,10 @@
 package job.domain;
 
+import lombok.Getter;
+
 import java.util.List;
 
+@Getter
 public class Vacancy {
     private final String nameVacancy;
     private final String nameCompany;
@@ -18,14 +21,6 @@ public class Vacancy {
     @Override
     public String toString() {
         return String.format("%s at %s", nameVacancy, nameCompany);
-    }
-
-    public String getNameVacancy() {
-        return nameVacancy;
-    }
-
-    public int getNeedExperience() {
-        return needExperience;
     }
 
     public int countScore(List<String> skills) {

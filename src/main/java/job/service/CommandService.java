@@ -1,27 +1,21 @@
 package job.service;
 
-import job.domain.User;
-import job.domain.Vacancy;
+import job.CLI.CommandParser;
+import job.domain.ParsedCommand;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
+@Component
+@RequiredArgsConstructor
 public class CommandService {
-    private final MatchService matchService;
+    private final SuggestService suggestService;
     private final FileService fileService;
     private final UserService userService;
-    private final VacancyService vacancyService;
-
-    public CommandService(MatchService matchService, FileService fileService, UserService userService, VacancyService vacancyService) {
-        this.matchService = matchService;
-        this.fileService = fileService;
-        this.userService = userService;
-        this.vacancyService = vacancyService;
-    }
+    private final JobService jobService;
+    private final StatService statService;
 
     public void processCommand() {
         List<String> history = fileService.getHistory();
@@ -49,17 +43,17 @@ public class CommandService {
 
             case "user-list" -> userService.getUsers().forEach(System.out::println);
 
-            case "job" -> vacancyService.createVacancy(
+            case "job" -> jobService.createVacancy(
                     command.arguments().getFirst(),
                     command.options().get("company"),
                     parseList(command.options().get("tags")),
                     Integer.parseInt(command.options().get("exp"))
             );
 
-            case "job-list" -> vacancyService.getVacancies()
+            case "job-list" -> jobService.getVacancies()
                     .forEach(System.out::println);
 
-            case "suggest" -> matchService.getMatch(command.arguments().getFirst())
+            case "suggest" -> suggestService.getMatch(command.arguments().getFirst())
                     .forEach(System.out::println);
 
             case "history" -> fileService.getHistory()
@@ -67,32 +61,14 @@ public class CommandService {
 
             case "stat" -> {
                 if (command.options().containsKey("exp")) {
-                    vacancyService.getVacancies().stream()
-                            .filter(s -> s.getNeedExperience() >= Integer.parseInt(command.options().get("exp")))
-                            .sorted(Comparator.comparing(Vacancy::getNameVacancy))
-                            .forEach(System.out::println);
+                    int minExperience = Integer.parseInt(command.options().get("exp"));
+                    statService.findJobsByExperience(minExperience).forEach(System.out::println);
                 } else if (command.options().containsKey("match")) {
                     int minMatches = Integer.parseInt(command.options().get("match"));
-
-                    userService.getUsers().stream()
-                            .filter(user -> matchService.getMatch(user.getName(), false).size() >= minMatches)
-                            .sorted(Comparator.comparing(User::getName))
-                            .forEach(System.out::println);
+                    statService.findUsersByMatchCount(minMatches).forEach(System.out::println);
                 } else if (command.options().containsKey("top-skills")) {
-                    int top = Integer.parseInt(command.options().get("top-skills"));
-
-                    userService.getUsers().stream()
-                            .flatMap(user -> user.getSkills().stream())
-                            .collect(Collectors.groupingBy(
-                                    Function.identity(),
-                                    Collectors.counting()
-                            ))
-                            .entrySet().stream()
-                            .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                            .limit(top)
-                            .map(Map.Entry::getKey)
-                            .sorted()
-                            .forEach(System.out::println);
+                    int limit = Integer.parseInt(command.options().get("top-skills"));
+                    statService.getTopSkills(limit).forEach(System.out::println);
                 }
             }
 
@@ -102,9 +78,6 @@ public class CommandService {
     }
 
     private List<String> parseList(String value) {
-        return Arrays.stream(value.split(","))
-                .distinct()
-                .sorted()
-                .toList();
+        return Arrays.asList(value.split(","));
     }
 }
