@@ -1,12 +1,12 @@
-package job.repository;
+package job.repository.inMemory;
 
 import job.domain.User;
+import job.repository.UserRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-@Repository
 public class InMemoryUserRepository implements UserRepository {
     private final Map<String, User> users = new LinkedHashMap<>();
 

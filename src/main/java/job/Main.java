@@ -1,18 +1,11 @@
 package job;
 
-import job.repository.InMemoryJobRepository;
-import job.repository.InMemoryUserRepository;
-import job.repository.JobRepository;
-import job.repository.UserRepository;
 import job.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 
 @Component
