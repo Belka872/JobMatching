@@ -5,20 +5,17 @@ import job.domain.User;
 import job.domain.Vacancy;
 import job.repository.JobRepository;
 import job.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 @Service
+@RequiredArgsConstructor
 public class SuggestService {
     private final UserRepository userRepository;
     private final JobRepository jobRepository;
-
-    public SuggestService(UserRepository userRepository, JobRepository jobRepository) {
-        this.userRepository = userRepository;
-        this.jobRepository = jobRepository;
-    }
 
     public List<Vacancy> getMatch(String userName) {
         return getMatch(userName, true);

@@ -3,6 +3,7 @@ package job;
 import job.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
@@ -10,6 +11,7 @@ import java.util.Scanner;
 
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "jobmatch.cli.enabled", havingValue = "true", matchIfMissing = true)
 public class Main implements CommandLineRunner {
     private final CommandService commandService;
 
